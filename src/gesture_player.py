@@ -53,6 +53,7 @@ class GestureMediaPlayer:
         self.player = self.instance.media_player_new()
         self.is_playing = False
         self.volume = 50
+        self.is_muted = False
         self.player.audio_set_volume(self.volume)
 
         # Track list and current track index
@@ -63,7 +64,7 @@ class GestureMediaPlayer:
         self.prev_hand_y = None
         self.prev_hand_x = None
         self.gesture_cooldown = 0
-        self.COOLDOWN_TIME = 1.0
+        self.COOLDOWN_TIME = 2.0
 
     def load_tracks(self, folder_path):
         """Load music tracks from specified folder"""
@@ -78,21 +79,47 @@ class GestureMediaPlayer:
             self.player.set_media(media)
 
     def detect_gestures(self, hand_landmarks):
-        # Get hand position and gestures
-        index_tip = hand_landmarks.landmark[self.mp_hands.HandLandmark.INDEX_FINGER_TIP]
+        # Get all finger tips and their positions
         thumb_tip = hand_landmarks.landmark[self.mp_hands.HandLandmark.THUMB_TIP]
+        index_tip = hand_landmarks.landmark[self.mp_hands.HandLandmark.INDEX_FINGER_TIP]
         middle_tip = hand_landmarks.landmark[self.mp_hands.HandLandmark.MIDDLE_FINGER_TIP]
+        ring_tip = hand_landmarks.landmark[self.mp_hands.HandLandmark.RING_FINGER_TIP]
+        pinky_tip = hand_landmarks.landmark[self.mp_hands.HandLandmark.PINKY_TIP]
+        
+        # Get palm center (wrist)
+        wrist = hand_landmarks.landmark[self.mp_hands.HandLandmark.WRIST]
         
         # Calculate distances
         thumb_index_distance = self.calculate_distance(thumb_tip, index_tip)
         thumb_middle_distance = self.calculate_distance(thumb_tip, middle_tip)
 
+        # Calculate average distance of all fingertips from wrist for mute/unmute
+        fingers_distance = (
+            self.calculate_distance(thumb_tip, wrist) +
+            self.calculate_distance(index_tip, wrist) +
+            self.calculate_distance(middle_tip, wrist) +
+            self.calculate_distance(ring_tip, wrist) +
+            self.calculate_distance(pinky_tip, wrist)
+        ) / 5.0
+
         current_time = time.time()
         if current_time - self.gesture_cooldown < self.COOLDOWN_TIME:
             return
 
-        # Vertical hand movement for volume control
-        if self.prev_hand_y is not None:
+        # Mute/Unmute gesture detection
+        if fingers_distance < 0.1:  # Fingers closed (fist)
+            if not self.is_muted:
+                self.player.audio_set_volume(0)
+                self.is_muted = True
+                self.gesture_cooldown = current_time
+        elif fingers_distance > 0.3:  # Fingers fully open
+            if self.is_muted:
+                self.player.audio_set_volume(self.volume)
+                self.is_muted = False
+                self.gesture_cooldown = current_time
+
+        # Vertical hand movement for volume control (only when not muted)
+        if self.prev_hand_y is not None and not self.is_muted:
             y_diff = index_tip.y - self.prev_hand_y
             if abs(y_diff) > 0.02:
                 self.volume = max(0, min(100, self.volume - int(y_diff * 100)))
@@ -166,8 +193,8 @@ class GestureMediaPlayer:
                     self.detect_gestures(hand_landmarks)
 
             # Display status
-            cv2.putText(frame, f"Volume: {self.volume}%", (10, 30),
-                       cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+            cv2.putText(frame, f"Volume: {'Muted' if self.is_muted else f'{self.volume}%'}", 
+                       (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
             cv2.putText(frame, f"Playing: {'Yes' if self.is_playing else 'No'}", 
                        (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
             if self.tracks:
@@ -184,5 +211,5 @@ class GestureMediaPlayer:
         self.hands.close()
 
 if __name__ == "__main__":
-    player = GestureMediaPlayer()
+    player = GestureMediaPlayer()   
     player.run()
