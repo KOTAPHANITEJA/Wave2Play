@@ -112,6 +112,42 @@ class GestureMediaPlayer:
         except Exception as e:
             print(f"Error loading tracks: {e}")
 
+    def setup_video_window(self):
+        """Setup video window for video playback"""
+        try:
+            # Close existing window safely
+            try:
+                if cv2.getWindowProperty(self.window_name, cv2.WND_PROP_VISIBLE) >= 0:
+                    cv2.destroyWindow(self.window_name)
+                    time.sleep(0.1)  # Small delay to ensure window is destroyed
+            except:
+                pass
+            
+            # Create new window
+            cv2.namedWindow(self.window_name, cv2.WINDOW_NORMAL)
+            cv2.resizeWindow(self.window_name, 800, 600)
+            time.sleep(0.1)  # Small delay to ensure window is created
+            
+            # Set window handle for Windows
+            if sys.platform.startswith('win32'):
+                try:
+                    # Get window handle using Win32 API
+                    hwnd = ctypes.windll.user32.FindWindowW(None, self.window_name)
+                    if hwnd:
+                        self.player.set_hwnd(hwnd)
+                        print("Video window created and attached successfully")
+                        return True
+                    else:
+                        print("Warning: Could not find video window handle")
+                        return False
+                except Exception as e:
+                    print(f"Could not attach video window: {e}")
+                    return False
+            return True
+        except Exception as e:
+            print(f"Error setting up video window: {e}")
+            return False
+
     def load_current_track(self):
         """Load current track with video support"""
         try:
@@ -136,37 +172,7 @@ class GestureMediaPlayer:
                 
                 # Set up video window if needed
                 if self.is_video:
-                    # Close existing window safely
-                    try:
-                        if cv2.getWindowProperty(self.window_name, cv2.WND_PROP_VISIBLE) >= 0:
-                            cv2.destroyWindow(self.window_name)
-                    except:
-                        pass
-                    
-                    # Create new window
-                    cv2.namedWindow(self.window_name, cv2.WINDOW_NORMAL)
-                    cv2.resizeWindow(self.window_name, 800, 600)
-                    
-                    # Set window handle for Windows
-                    if sys.platform.startswith('win32'):
-                        try:
-                            # Get window handle using Win32 API
-                            hwnd = ctypes.windll.user32.FindWindowW(None, self.window_name)
-                            if hwnd:
-                                self.player.set_hwnd(hwnd)
-                                print("Video window created and attached")
-                        except Exception as e:
-                            print(f"Could not attach video window: {e}")
-            
-                # Setup video window if needed
-                if self.is_video:
-                    cv2.namedWindow(self.window_name, cv2.WINDOW_NORMAL)
-                    cv2.resizeWindow(self.window_name, 800, 600)
-                    if sys.platform.startswith('win32'):
-                        hwnd = cv2.getWindowHandle(self.window_name)
-                        if hwnd:
-                            self.player.set_hwnd(hwnd)
-                            print("Video window created")
+                    self.setup_video_window()
             
                 # Start playing if already in playing state
                 if self.is_playing:
@@ -417,9 +423,22 @@ class GestureMediaPlayer:
             if self.is_playing:
                 self.player.pause()
                 self.is_playing = False
+                print("Playback paused")
             else:
+                # If it's a video and no window is set up, set it up now
+                if self.is_video:
+                    # Check if video window exists
+                    try:
+                        if cv2.getWindowProperty(self.window_name, cv2.WND_PROP_VISIBLE) < 0:
+                            print("Video window not found, creating...")
+                            self.setup_video_window()
+                    except:
+                        print("Video window not found, creating...")
+                        self.setup_video_window()
+                
                 self.player.play()
                 self.is_playing = True
+                print(f"Playing {'video' if self.is_video else 'audio'}")
         except Exception as e:
             print(f"Error toggling play state: {e}")
     
