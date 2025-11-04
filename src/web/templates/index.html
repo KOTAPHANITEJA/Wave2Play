@@ -1,1048 +1,372 @@
-<!DOCTYPE html><!DOCTYPE html><!DOCTYPE html><!DOCTYPE html>
-
+<!DOCTYPE html>
 <html lang="en">
-
-<head><html lang="en">
-
+<head>
     <meta charset="UTF-8">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"><head><html lang="en"><html>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wave2Play - Gesture Media Controller</title>
-
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">    <meta charset="UTF-8">
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-
-<body>    <meta name="viewport" content="width=device-width, initial-scale=1.0"><head><head>
-
+<body>
     <div class="container">
-
-        <!-- 1. HEADER -->    <title>Wave2Play - Gesture Media Controller</title>
-
-        <header>
-
-            <h1 class="title">    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">    <meta charset="UTF-8">    <title>Gesture Media Controller</title>
-
+        
+        <!-- ===== HEADER SECTION ===== -->
+        <header class="app-header">
+            <h1 class="app-title">
                 <span class="wave-icon">👋</span>
-
-                Wave2Play</head>
-
+                Wave2Play
             </h1>
-
-            <p class="subtitle">Control Your Media with Hand Gestures</p><body>    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-
+            <p class="app-subtitle">Control Your Media with Hand Gestures</p>
         </header>
 
-    <div class="container">
-
-        <!-- 2. STATUS DISPLAY -->
-
-        <div class="status-card">        <!-- Header -->    <title>Wave2Play - Gesture Media Controller</title></head>
-
-            <div class="status-item">
-
-                <span class="status-label">Now Playing:</span>        <header>
-
-                <span id="trackName" class="status-value">Loading...</span>
-
-            </div>            <h1 class="title">    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"><body>
-
-            <div class="status-item">
-
-                <span class="status-label">Track:</span>                <span class="wave-icon">👋</span>
-
-                <span id="trackNumber" class="status-value">-- / --</span>
-
-            </div>                Wave2Play</head>    <div class="container">
-
-            <div class="status-item">
-
-                <span class="status-label">Status:</span>            </h1>
-
-                <span id="playStatus" class="status-value play-indicator">⏸️ Paused</span>
-
-            </div>            <p class="subtitle">Control Your Media with Hand Gestures</p><body>        <h1>Gesture Media Controller</h1>
-
-            <div class="status-item">
-
-                <span class="status-label">Type:</span>        </header>
-
-                <span id="mediaType" class="status-value">🎵 Audio</span>
-
-            </div>    <div class="container">
-
-            <div class="status-item">
-
-                <span class="status-label">Volume:</span>        <!-- Emergency Button - Always Visible -->
-
-                <div class="volume-container">
-
-                    <input type="range" id="volumeSlider" min="0" max="100" value="50" onchange="setVolume(this.value)">        <div class="emergency-section">        <!-- Header -->        <!-- Main Controls -->
-
-                    <span id="volumeValue" class="status-value">50%</span>
-
-                </div>            <button id="emergencyBtn" class="emergency-btn" onclick="triggerEmergency()">
-
+        <!-- ===== PLAYER STATUS SECTION ===== -->
+        <section class="player-status-section">
+            <div class="status-card">
+                <div class="status-item">
+                    <span class="status-label">Now Playing:</span>
+                    <span id="currentTrackName" class="status-value">Loading...</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Track:</span>
+                    <span id="currentTrackNumber" class="status-value">-- / --</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Status:</span>
+                    <span id="playerStatus" class="status-value">⏸️ Paused</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Media Type:</span>
+                    <span id="currentMediaType" class="status-value">🎵 Audio</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Volume:</span>
+                    <div class="volume-controls">
+                        <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="50" onchange="setVolume(this.value)">
+                        <span id="volumeDisplay" class="status-value">50%</span>
+                    </div>
+                </div>
             </div>
+        </section>
 
-        </div>                <span class="emergency-icon">🚨</span>        <header>        <div class="controls">
+        <!-- ===== PLAYBACK CONTROLS SECTION ===== -->
+        <section class="playback-section">
+            <div class="playback-controls">
+                <button class="control-btn btn-previous" onclick="controlPlayer('previous')" title="Previous Track">
+                    <span class="control-icon">⏮️</span>
+                    <span class="control-text">Previous</span>
+                </button>
+                <button class="control-btn btn-play-pause" onclick="controlPlayer('play')" title="Play/Pause">
+                    <span id="playPauseIcon" class="control-icon">▶️</span>
+                    <span id="playPauseText" class="control-text">Play</span>
+                </button>
+                <button class="control-btn btn-next" onclick="controlPlayer('next')" title="Next Track">
+                    <span class="control-icon">⏭️</span>
+                    <span class="control-text">Next</span>
+                </button>
+            </div>
+        </section>
 
+        <!-- ===== MODE SELECTION SECTION ===== -->
+        <section class="mode-selection-section">
+            <div class="mode-switcher">
+                <button id="btnStandardMode" class="mode-btn mode-btn-active" onclick="switchControlMode('standard')">
+                    <span class="mode-icon">✋</span>
+                    <span class="mode-text">Standard Mode</span>
+                </button>
+                <button id="btnAccessibilityMode" class="mode-btn" onclick="switchControlMode('accessibility')">
+                    <span class="mode-icon">👆</span>
+                    <span class="mode-text">Accessibility Mode</span>
+                </button>
+            </div>
+        </section>
 
-
-        <!-- 3. PLAYBACK CONTROLS -->                EMERGENCY STOP
-
-        <div class="playback-controls">
-
-            <button class="control-btn" onclick="control('previous')" title="Previous Track">            </button>            <h1 class="title">            <button onclick="control('play')">Play/Pause</button>
-
-                <span class="control-icon">⏮️</span>
-
-                Previous            <span id="emergencyStatus" class="emergency-status"></span>
-
-            </button>
-
-            <button class="control-btn play-btn" onclick="control('play')" title="Play/Pause">        </div>                <span class="wave-icon">👋</span>            <button onclick="control('next')">Next Track</button>
-
-                <span id="playIcon" class="control-icon">▶️</span>
-
-                <span id="playText">Play</span>
-
-            </button>
-
-            <button class="control-btn" onclick="control('next')" title="Next Track">        <!-- Mode Switcher -->                Wave2Play            <button onclick="control('prev')">Previous Track</button>
-
-                <span class="control-icon">⏭️</span>
-
-                Next        <div class="mode-switcher">
-
-            </button>
-
-        </div>            <button id="standardModeBtn" class="mode-btn active" onclick="switchMode('standard')">            </h1>            <button onclick="control('mute')">Mute/Unmute</button>
-
-
-
-        <!-- 4. MODE SWITCHER -->                <span class="mode-icon">✋</span>
-
-        <div class="mode-switcher">
-
-            <button id="standardModeBtn" class="mode-btn active" onclick="switchMode('standard')">                Standard Mode            <p class="subtitle">Control Your Media with Hand Gestures</p>        </div>
-
-                <span class="mode-icon">✋</span>
-
-                Standard Mode            </button>
-
-            </button>
-
-            <button id="accessibilityModeBtn" class="mode-btn" onclick="switchMode('accessibility')">            <button id="accessibilityModeBtn" class="mode-btn" onclick="switchMode('accessibility')">        </header>
-
-                <span class="mode-icon">👆</span>
-
-                Accessibility Mode                <span class="mode-icon">👆</span>
-
-            </button>
-
-        </div>                Accessibility Mode        <!-- Accessibility Controls -->
-
-
-
-        <!-- 5. EMERGENCY STOP -->            </button>
-
-        <div class="emergency-section">
-
-            <button id="emergencyBtn" class="emergency-btn" onclick="triggerEmergency()">        </div>        <!-- Emergency Button - Always Visible -->        <div class="accessibility-controls">
-
+        <!-- ===== EMERGENCY CONTROL SECTION ===== -->
+        <section class="emergency-control-section">
+            <button id="btnEmergencyStop" class="emergency-btn" onclick="triggerEmergencyStop()">
                 <span class="emergency-icon">🚨</span>
-
-                EMERGENCY STOP
-
+                <span class="emergency-text">EMERGENCY STOP</span>
             </button>
+            <div id="emergencyStatusMessage" class="emergency-status-message"></div>
+        </section>
 
-            <span id="emergencyStatus" class="emergency-status"></span>        <!-- Current Status Display -->        <div class="emergency-section">            <h2>Accessibility Options</h2>
-
-        </div>
-
-        <div class="status-card">
-
-        <!-- 6. GESTURE GUIDE -->
-
-        <div class="gesture-guide-section">            <div class="status-item">            <button id="emergencyBtn" class="emergency-btn" onclick="triggerEmergency()">            <button onclick="control('accessibility')" class="mode-toggle">
-
+        <!-- ===== GESTURE GUIDE SECTION ===== -->
+        <section class="gesture-guide-section">
             <h2 class="section-title">
-
-                <span class="title-icon">🎯</span>                <span class="status-label">Now Playing:</span>
-
-                Gesture Guide
-
-            </h2>                <span id="trackName" class="status-value">Loading...</span>                <span class="emergency-icon">🚨</span>                Toggle Accessibility Mode
-
+                <span class="section-icon">🎯</span>
+                <span class="section-text">Gesture Guide</span>
+            </h2>
             
-
-            <!-- Standard Mode Gestures -->            </div>
-
-            <div id="standardGestures" class="gestures-container active">
-
-                <div class="gesture-card animate-slide-in">            <div class="status-item">                EMERGENCY STOP            </button>
-
+            <!-- Standard Mode Gestures -->
+            <div id="gesturesStandardMode" class="gestures-container gestures-active">
+                <div class="gesture-card card-volume">
                     <div class="gesture-icon">👆👇</div>
-
-                    <h3 class="gesture-name">Volume Control</h3>                <span class="status-label">Track:</span>
-
+                    <h3 class="gesture-title">Volume Control</h3>
                     <p class="gesture-description">Move hand up/down to adjust volume</p>
-
-                </div>                <span id="trackNumber" class="status-value">-- / --</span>            </button>            <div class="gesture-guide">
-
+                </div>
                 
-
-                <div class="gesture-card animate-slide-in" style="animation-delay: 0.1s">            </div>
-
+                <div class="gesture-card card-navigation">
                     <div class="gesture-icon">👈👉</div>
-
-                    <h3 class="gesture-name">Track Navigation</h3>            <div class="status-item">            <span id="emergencyStatus" class="emergency-status"></span>                <h3>Gesture Guide:</h3>
-
+                    <h3 class="gesture-title">Track Navigation</h3>
                     <p class="gesture-description">Move hand left/right to change tracks</p>
-
-                </div>                <span class="status-label">Volume:</span>
-
+                </div>
                 
-
-                <div class="gesture-card animate-slide-in" style="animation-delay: 0.2s">                <div class="volume-container">        </div>                <ul>
-
+                <div class="gesture-card card-play-pause">
                     <div class="gesture-icon">🤏</div>
-
-                    <h3 class="gesture-name">Play/Pause</h3>                    <input type="range" id="volumeSlider" min="0" max="100" value="50" onchange="setVolume(this.value)">
-
+                    <h3 class="gesture-title">Play/Pause</h3>
                     <p class="gesture-description">Pinch thumb and index finger together</p>
-
-                </div>                    <span id="volumeValue" class="status-value">50%</span>                    <li>👆 Single Finger Up/Down: Volume Control</li>
-
+                </div>
                 
-
-                <div class="gesture-card animate-slide-in" style="animation-delay: 0.3s">                </div>
-
+                <div class="gesture-card card-media-switch">
                     <div class="gesture-icon">✌️</div>
-
-                    <h3 class="gesture-name">Switch Media</h3>            </div>        <!-- Mode Switcher -->                    <li>👆 Single Finger Left/Right: Change Track</li>
-
+                    <h3 class="gesture-title">Switch Media Type</h3>
                     <p class="gesture-description">Peace sign to switch between audio/video</p>
-
-                </div>            <div class="status-item">
-
+                </div>
                 
-
-                <div class="gesture-card animate-slide-in" style="animation-delay: 0.4s">                <span class="status-label">Status:</span>        <div class="mode-switcher">                    <li>🤏 Thumb + Index Close: Play/Pause</li>
-
+                <div class="gesture-card card-mute">
                     <div class="gesture-icon">✊</div>
-
-                    <h3 class="gesture-name">Mute/Unmute</h3>                <span id="playStatus" class="status-value play-indicator">⏸️ Paused</span>
-
-                    <p class="gesture-description">Make a fist to mute</p>
-
-                </div>            </div>            <button id="standardModeBtn" class="mode-btn active" onclick="switchMode('standard')">                    <li>✋ All Fingers Spread: Emergency Stop</li>
-
+                    <h3 class="gesture-title">Mute/Unmute</h3>
+                    <p class="gesture-description">Make a fist to toggle mute</p>
+                </div>
                 
-
-                <div class="gesture-card animate-slide-in emergency-gesture" style="animation-delay: 0.5s">            <div class="status-item">
-
+                <div class="gesture-card card-emergency">
                     <div class="gesture-icon">🖐️</div>
-
-                    <h3 class="gesture-name">Emergency Stop</h3>                <span class="status-label">Type:</span>                <span class="mode-icon">✋</span>                </ul>
-
-                    <p class="gesture-description">Spread all fingers and raise hand</p>
-
-                </div>                <span id="mediaType" class="status-value">🎵 Audio</span>
-
+                    <h3 class="gesture-title">Emergency Stop</h3>
+                    <p class="gesture-description">Spread all fingers and raise hand high</p>
+                </div>
             </div>
-
-            </div>                Standard Mode            </div>
 
             <!-- Accessibility Mode Gestures -->
-
-            <div id="accessibilityGestures" class="gestures-container">        </div>
-
-                <div class="gesture-card animate-slide-in">
-
-                    <div class="gesture-icon">☝️⬆️⬇️</div>            </button>        </div>
-
-                    <h3 class="gesture-name">Volume Control</h3>
-
-                    <p class="gesture-description">Move index finger up/down</p>        <!-- Playback Controls -->
-
+            <div id="gesturesAccessibilityMode" class="gestures-container">
+                <div class="gesture-card card-volume">
+                    <div class="gesture-icon">☝️⬆️⬇️</div>
+                    <h3 class="gesture-title">Volume Control</h3>
+                    <p class="gesture-description">Move index finger up/down to adjust volume</p>
                 </div>
-
-                        <div class="playback-controls">            <button id="accessibilityModeBtn" class="mode-btn" onclick="switchMode('accessibility')">
-
-                <div class="gesture-card animate-slide-in" style="animation-delay: 0.1s">
-
-                    <div class="gesture-icon">☝️⬅️➡️</div>            <button class="control-btn" onclick="control('previous')" title="Previous Track">
-
-                    <h3 class="gesture-name">Track Navigation</h3>
-
-                    <p class="gesture-description">Move index finger left/right</p>                <span class="control-icon">⏮️</span>                <span class="mode-icon">👆</span>        <!-- Emergency Control -->
-
-                </div>
-
-                                Previous
-
-                <div class="gesture-card animate-slide-in" style="animation-delay: 0.2s">
-
-                    <div class="gesture-icon">☝️</div>            </button>                Accessibility Mode        <div class="emergency-controls">
-
-                    <h3 class="gesture-name">Play/Pause</h3>
-
-                    <p class="gesture-description">Hold finger still in center</p>            <button class="control-btn play-btn" onclick="control('play')" title="Play/Pause">
-
-                </div>
-
-                                <span id="playIcon" class="control-icon">▶️</span>            </button>            <h2>Emergency Controls</h2>
-
-                <div class="gesture-card animate-slide-in emergency-gesture" style="animation-delay: 0.3s">
-
-                    <div class="gesture-icon">🖐️</div>                <span id="playText">Play</span>
-
-                    <h3 class="gesture-name">Emergency Stop</h3>
-
-                    <p class="gesture-description">Spread all fingers and raise hand</p>            </button>        </div>            <button onclick="control('emergency')" class="emergency-btn">
-
-                </div>
-
-            </div>            <button class="control-btn" onclick="control('next')" title="Next Track">
-
-        </div>
-
-                <span class="control-icon">⏭️</span>                EMERGENCY STOP
-
-        <!-- 7. KEYBOARD SHORTCUTS -->
-
-        <div class="keyboard-shortcuts">                Next
-
-            <h2 class="section-title">
-
-                <span class="title-icon">⌨️</span>            </button>        <!-- Current Status Display -->            </button>
-
-                Keyboard Shortcuts
-
-            </h2>        </div>
-
-            <div class="shortcuts-grid">
-
-                <div class="shortcut-item">        <div class="status-card">        </div>
-
-                    <kbd>P</kbd>
-
-                    <span>Play/Pause</span>        <!-- Gesture Guide Section -->
-
-                </div>
-
-                <div class="shortcut-item">        <div class="gesture-guide-section">            <div class="status-item">
-
-                    <kbd>N</kbd>
-
-                    <span>Next Track</span>            <h2 class="section-title">
-
-                </div>
-
-                <div class="shortcut-item">                <span class="title-icon">🎯</span>                <span class="status-label">Now Playing:</span>        <!-- Status Display -->
-
-                    <kbd>B</kbd>
-
-                    <span>Previous Track</span>                Gesture Guide
-
-                </div>
-
-                <div class="shortcut-item">            </h2>                <span id="trackName" class="status-value">Loading...</span>        <div id="status" class="status-display">
-
-                    <kbd>M</kbd>
-
-                    <span>Toggle Mode</span>            
-
-                </div>
-
-                <div class="shortcut-item">            <!-- Standard Mode Gestures -->            </div>            Loading...
-
-                    <kbd>ESC</kbd>
-
-                    <span>Emergency Stop/Reset</span>            <div id="standardGestures" class="gestures-container active">
-
-                </div>
-
-                <div class="shortcut-item">                <div class="gesture-card animate-slide-in">            <div class="status-item">        </div>
-
-                    <kbd>R</kbd>
-
-                    <span>Reset Emergency</span>                    <div class="gesture-icon">👆👇</div>
-
-                </div>
-
-                <div class="shortcut-item">                    <h3 class="gesture-name">Volume Control</h3>                <span class="status-label">Track:</span>    </div>
-
-                    <kbd>Q</kbd>
-
-                    <span>Quit Application</span>                    <p class="gesture-description">Move hand up/down to adjust volume</p>
-
-                </div>
-
-            </div>                </div>                <span id="trackNumber" class="status-value">-- / --</span>
-
-        </div>
-
                 
+                <div class="gesture-card card-navigation">
+                    <div class="gesture-icon">☝️⬅️➡️</div>
+                    <h3 class="gesture-title">Track Navigation</h3>
+                    <p class="gesture-description">Move index finger left/right to change tracks</p>
+                </div>
+                
+                <div class="gesture-card card-play-pause">
+                    <div class="gesture-icon">☝️</div>
+                    <h3 class="gesture-title">Play/Pause</h3>
+                    <p class="gesture-description">Hold index finger still in center of screen</p>
+                </div>
+                
+                <div class="gesture-card card-emergency">
+                    <div class="gesture-icon">🖐️</div>
+                    <h3 class="gesture-title">Emergency Stop</h3>
+                    <p class="gesture-description">Spread all fingers and raise hand high</p>
+                </div>
+            </div>
+        </section>
 
-        <!-- 8. FOOTER -->
+        <!-- ===== KEYBOARD SHORTCUTS SECTION ===== -->
+        <section class="keyboard-shortcuts-section">
+            <h2 class="section-title">
+                <span class="section-icon">⌨️</span>
+                <span class="section-text">Keyboard Shortcuts</span>
+            </h2>
+            <div class="shortcuts-grid">
+                <div class="shortcut-item">
+                    <kbd class="shortcut-key">P</kbd>
+                    <span class="shortcut-description">Play/Pause</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd class="shortcut-key">N</kbd>
+                    <span class="shortcut-description">Next Track</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd class="shortcut-key">B</kbd>
+                    <span class="shortcut-description">Previous Track</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd class="shortcut-key">M</kbd>
+                    <span class="shortcut-description">Toggle Mode</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd class="shortcut-key">ESC</kbd>
+                    <span class="shortcut-description">Emergency Stop/Reset</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd class="shortcut-key">R</kbd>
+                    <span class="shortcut-description">Reset Emergency</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd class="shortcut-key">Q</kbd>
+                    <span class="shortcut-description">Quit Application</span>
+                </div>
+            </div>
+        </section>
 
-        <footer>                <div class="gesture-card animate-slide-in" style="animation-delay: 0.1s">            </div>    <!-- Scripts -->
-
-            <p>🎵 Wave2Play - Hand Gesture Media Controller 🎥</p>
-
-            <p class="footer-note">Make sure your camera is enabled and properly positioned</p>                    <div class="gesture-icon">👈👉</div>
-
+        <!-- ===== FOOTER SECTION ===== -->
+        <footer class="app-footer">
+            <p class="footer-title">🎵 Wave2Play - Hand Gesture Media Controller 🎥</p>
+            <p class="footer-note">Ensure your camera is enabled and properly positioned for optimal gesture detection</p>
         </footer>
 
-    </div>                    <h3 class="gesture-name">Track Navigation</h3>            <div class="status-item">    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    </div>
 
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        // Global State Variables
+        let currentControlMode = 'standard';
+        let isEmergencyActive = false;
 
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updatePlayerStatus();
+            setInterval(updatePlayerStatus, 1000); // Update status every second
+        });
 
-    <script>                    <p class="gesture-description">Move hand left/right to change tracks</p>
-
-        let currentMode = 'standard';
-
-        let isEmergency = false;                </div>                <span class="status-label">Volume:</span></body>
-
-
-
-        // Update status every second                
-
-        setInterval(updateStatus, 1000);
-
-                <div class="gesture-card animate-slide-in" style="animation-delay: 0.2s">                <div class="volume-container"></html>
-
-        async function updateStatus() {
-
-            try {                    <div class="gesture-icon">🤏</div>                    <input type="range" id="volumeSlider" min="0" max="100" value="50" onchange="setVolume(this.value)">
-
+        /**
+         * Fetch and update player status from API
+         */
+        async function updatePlayerStatus() {
+            try {
                 const response = await fetch('/api/status');
-
-                const data = await response.json();                    <h3 class="gesture-name">Play/Pause</h3>                    <span id="volumeValue" class="status-value">50%</span>
-
+                const statusData = await response.json();
                 
-
-                // Update track info                    <p class="gesture-description">Pinch thumb and index finger together</p>                </div>
-
-                document.getElementById('trackName').textContent = data.track || 'No track loaded';
-
-                document.getElementById('trackNumber').textContent = `${data.currentTrack} / ${data.totalTracks}`;                </div>            </div>
-
+                // Update track information
+                document.getElementById('currentTrackName').textContent = statusData.track || 'No track loaded';
+                document.getElementById('currentTrackNumber').textContent = `${statusData.currentTrack} / ${statusData.totalTracks}`;
                 
-
-                // Update volume                            <div class="status-item">
-
-                document.getElementById('volumeValue').textContent = `${data.volume}%`;
-
-                document.getElementById('volumeSlider').value = data.volume;                <div class="gesture-card animate-slide-in" style="animation-delay: 0.3s">                <span class="status-label">Status:</span>
-
+                // Update volume display
+                document.getElementById('volumeDisplay').textContent = `${statusData.volume}%`;
+                document.getElementById('volumeSlider').value = statusData.volume;
                 
-
-                // Update play status                    <div class="gesture-icon">✌️</div>                <span id="playStatus" class="status-value play-indicator">⏸️ Paused</span>
-
-                const playStatus = document.getElementById('playStatus');
-
-                const playIcon = document.getElementById('playIcon');                    <h3 class="gesture-name">Switch Media</h3>            </div>
-
-                const playText = document.getElementById('playText');
-
-                                    <p class="gesture-description">Peace sign to switch between audio/video</p>            <div class="status-item">
-
-                if (data.playing) {
-
-                    playStatus.innerHTML = '▶️ Playing';                </div>                <span class="status-label">Type:</span>
-
-                    playStatus.classList.add('playing');
-
-                    playIcon.textContent = '⏸️';                                <span id="mediaType" class="status-value">🎵 Audio</span>
-
-                    playText.textContent = 'Pause';
-
-                } else {                <div class="gesture-card animate-slide-in" style="animation-delay: 0.4s">            </div>
-
-                    playStatus.innerHTML = '⏸️ Paused';
-
-                    playStatus.classList.remove('playing');                    <div class="gesture-icon">✊</div>        </div>
-
-                    playIcon.textContent = '▶️';
-
-                    playText.textContent = 'Play';                    <h3 class="gesture-name">Mute/Unmute</h3>
-
-                }
-
-                                    <p class="gesture-description">Make a fist to mute</p>        <!-- Playback Controls -->
-
+                // Update play/pause status
+                updatePlayPauseUI(statusData.playing);
+                
                 // Update media type
-
-                document.getElementById('mediaType').textContent = data.isVideo ? '🎥 Video' : '🎵 Audio';                </div>        <div class="playback-controls">
-
+                document.getElementById('currentMediaType').textContent = statusData.isVideo ? '🎥 Video' : '🎵 Audio';
                 
-
-                // Update mode                            <button class="control-btn" onclick="control('previous')" title="Previous Track">
-
-                if (data.mode !== currentMode) {
-
-                    currentMode = data.mode;                <div class="gesture-card animate-slide-in emergency-gesture" style="animation-delay: 0.5s">                <span class="control-icon">⏮️</span>
-
-                    updateModeUI(data.mode);
-
-                }                    <div class="gesture-icon">🖐️</div>                Previous
-
-                
-
-                // Update emergency status                    <h3 class="gesture-name">Emergency Stop</h3>            </button>
-
-                updateEmergencyStatus(data.emergency);
-
-                                    <p class="gesture-description">Spread all fingers and raise hand</p>            <button class="control-btn play-btn" onclick="control('play')" title="Play/Pause">
-
-            } catch (error) {
-
-                console.error('Error fetching status:', error);                </div>                <span id="playIcon" class="control-icon">▶️</span>
-
-            }
-
-        }            </div>                <span id="playText">Play</span>
-
-
-
-        async function control(action) {            </button>
-
-            try {
-
-                await fetch(`/api/control/${action}`, { method: 'POST' });            <!-- Accessibility Mode Gestures -->            <button class="control-btn" onclick="control('next')" title="Next Track">
-
-                updateStatus();
-
-            } catch (error) {            <div id="accessibilityGestures" class="gestures-container">                <span class="control-icon">⏭️</span>
-
-                console.error('Error controlling player:', error);
-
-            }                <div class="gesture-card animate-slide-in">                Next
-
-        }
-
-                    <div class="gesture-icon">☝️⬆️⬇️</div>            </button>
-
-        async function setVolume(volume) {
-
-            try {                    <h3 class="gesture-name">Volume Control</h3>        </div>
-
-                await fetch('/api/control/volume', {
-
-                    method: 'POST',                    <p class="gesture-description">Move index finger up/down</p>
-
-                    headers: { 'Content-Type': 'application/json' },
-
-                    body: JSON.stringify({ volume: parseInt(volume) })                </div>        <!-- Gesture Guide Section -->
-
-                });
-
-                document.getElementById('volumeValue').textContent = `${volume}%`;                        <div class="gesture-guide-section">
-
-            } catch (error) {
-
-                console.error('Error setting volume:', error);                <div class="gesture-card animate-slide-in" style="animation-delay: 0.1s">            <h2 class="section-title">
-
-            }
-
-        }                    <div class="gesture-icon">☝️⬅️➡️</div>                <span class="title-icon">🎯</span>
-
-
-
-        async function switchMode(mode) {                    <h3 class="gesture-name">Track Navigation</h3>                Gesture Guide
-
-            if (mode !== currentMode) {
-
-                await control('mode');                    <p class="gesture-description">Move index finger left/right</p>            </h2>
-
-                updateModeUI(mode);
-
-            }                </div>            
-
-        }
-
-                            <!-- Standard Mode Gestures -->
-
-        function updateModeUI(mode) {
-
-            currentMode = mode;                <div class="gesture-card animate-slide-in" style="animation-delay: 0.2s">            <div id="standardGestures" class="gestures-container active">
-
-            
-
-            // Update mode buttons                    <div class="gesture-icon">☝️</div>                <div class="gesture-card animate-slide-in">
-
-            const standardBtn = document.getElementById('standardModeBtn');
-
-            const accessibilityBtn = document.getElementById('accessibilityModeBtn');                    <h3 class="gesture-name">Play/Pause</h3>                    <div class="gesture-icon">👆👇</div>
-
-            
-
-            if (mode === 'standard') {                    <p class="gesture-description">Hold finger still in center</p>                    <h3 class="gesture-name">Volume Control</h3>
-
-                standardBtn.classList.add('active');
-
-                accessibilityBtn.classList.remove('active');                </div>                    <p class="gesture-description">Move hand up/down to adjust volume</p>
-
-                document.getElementById('standardGestures').classList.add('active');
-
-                document.getElementById('accessibilityGestures').classList.remove('active');                                </div>
-
-            } else {
-
-                standardBtn.classList.remove('active');                <div class="gesture-card animate-slide-in emergency-gesture" style="animation-delay: 0.3s">                
-
-                accessibilityBtn.classList.add('active');
-
-                document.getElementById('standardGestures').classList.remove('active');                    <div class="gesture-icon">🖐️</div>                <div class="gesture-card animate-slide-in" style="animation-delay: 0.1s">
-
-                document.getElementById('accessibilityGestures').classList.add('active');
-
-            }                    <h3 class="gesture-name">Emergency Stop</h3>                    <div class="gesture-icon">👈👉</div>
-
-        }
-
-                    <p class="gesture-description">Spread all fingers and raise hand</p>                    <h3 class="gesture-name">Track Navigation</h3>
-
-        async function triggerEmergency() {
-
-            await control('emergency');                </div>                    <p class="gesture-description">Move hand left/right to change tracks</p>
-
-            updateStatus();
-
-        }            </div>                </div>
-
-
-
-        function updateEmergencyStatus(emergency) {        </div>                
-
-            const emergencyBtn = document.getElementById('emergencyBtn');
-
-            const emergencyStatus = document.getElementById('emergencyStatus');                <div class="gesture-card animate-slide-in" style="animation-delay: 0.2s">
-
-            
-
-            if (emergency) {        <!-- Keyboard Shortcuts -->                    <div class="gesture-icon">🤏</div>
-
-                emergencyBtn.classList.add('active');
-
-                emergencyStatus.textContent = '⚠️ EMERGENCY ACTIVE - Click to Reset';        <div class="keyboard-shortcuts">                    <h3 class="gesture-name">Play/Pause</h3>
-
-                emergencyStatus.style.display = 'block';
-
-                isEmergency = true;            <h2 class="section-title">                    <p class="gesture-description">Pinch thumb and index finger together</p>
-
-            } else {
-
-                emergencyBtn.classList.remove('active');                <span class="title-icon">⌨️</span>                </div>
-
-                emergencyStatus.textContent = '';
-
-                emergencyStatus.style.display = 'none';                Keyboard Shortcuts                
-
-                isEmergency = false;
-
-            }            </h2>                <div class="gesture-card animate-slide-in" style="animation-delay: 0.3s">
-
-        }
-
-            <div class="shortcuts-grid">                    <div class="gesture-icon">✌️</div>
-
-        // Initial status update
-
-        updateStatus();                <div class="shortcut-item">                    <h3 class="gesture-name">Switch Media</h3>
-
-    </script>
-
-</body>                    <kbd>P</kbd>                    <p class="gesture-description">Peace sign to switch between audio/video</p>
-
-</html>
-
-                    <span>Play/Pause</span>                </div>
-
-                </div>                
-
-                <div class="shortcut-item">                <div class="gesture-card animate-slide-in" style="animation-delay: 0.4s">
-
-                    <kbd>N</kbd>                    <div class="gesture-icon">✊</div>
-
-                    <span>Next Track</span>                    <h3 class="gesture-name">Mute/Unmute</h3>
-
-                </div>                    <p class="gesture-description">Make a fist to mute</p>
-
-                <div class="shortcut-item">                </div>
-
-                    <kbd>B</kbd>                
-
-                    <span>Previous Track</span>                <div class="gesture-card animate-slide-in emergency-gesture" style="animation-delay: 0.5s">
-
-                </div>                    <div class="gesture-icon">🖐️</div>
-
-                <div class="shortcut-item">                    <h3 class="gesture-name">Emergency Stop</h3>
-
-                    <kbd>M</kbd>                    <p class="gesture-description">Spread all fingers and raise hand</p>
-
-                    <span>Toggle Mode</span>                </div>
-
-                </div>            </div>
-
-                <div class="shortcut-item">
-
-                    <kbd>ESC</kbd>            <!-- Accessibility Mode Gestures -->
-
-                    <span>Emergency Stop/Reset</span>            <div id="accessibilityGestures" class="gestures-container">
-
-                </div>                <div class="gesture-card animate-slide-in">
-
-                <div class="shortcut-item">                    <div class="gesture-icon">☝️⬆️⬇️</div>
-
-                    <kbd>R</kbd>                    <h3 class="gesture-name">Volume Control</h3>
-
-                    <span>Reset Emergency</span>                    <p class="gesture-description">Move index finger up/down</p>
-
-                </div>                </div>
-
-                <div class="shortcut-item">                
-
-                    <kbd>Q</kbd>                <div class="gesture-card animate-slide-in" style="animation-delay: 0.1s">
-
-                    <span>Quit Application</span>                    <div class="gesture-icon">☝️⬅️➡️</div>
-
-                </div>                    <h3 class="gesture-name">Track Navigation</h3>
-
-            </div>                    <p class="gesture-description">Move index finger left/right</p>
-
-        </div>                </div>
-
-                
-
-        <!-- Footer -->                <div class="gesture-card animate-slide-in" style="animation-delay: 0.2s">
-
-        <footer>                    <div class="gesture-icon">☝️</div>
-
-            <p>🎵 Wave2Play - Hand Gesture Media Controller 🎥</p>                    <h3 class="gesture-name">Play/Pause</h3>
-
-            <p class="footer-note">Make sure your camera is enabled and properly positioned</p>                    <p class="gesture-description">Hold finger still in center</p>
-
-        </footer>                </div>
-
-    </div>                
-
-                <div class="gesture-card animate-slide-in emergency-gesture" style="animation-delay: 0.3s">
-
-    <script>                    <div class="gesture-icon">🖐️</div>
-
-        let currentMode = 'standard';                    <h3 class="gesture-name">Emergency Stop</h3>
-
-        let isEmergency = false;                    <p class="gesture-description">Spread all fingers and raise hand</p>
-
-                </div>
-
-        // Update status every second            </div>
-
-        setInterval(updateStatus, 1000);        </div>
-
-
-
-        async function updateStatus() {        <!-- Keyboard Shortcuts -->
-
-            try {        <div class="keyboard-shortcuts">
-
-                const response = await fetch('/api/status');            <h2 class="section-title">
-
-                const data = await response.json();                <span class="title-icon">⌨️</span>
-
-                                Keyboard Shortcuts
-
-                // Update track info            </h2>
-
-                document.getElementById('trackName').textContent = data.track || 'No track loaded';            <div class="shortcuts-grid">
-
-                document.getElementById('trackNumber').textContent = `${data.currentTrack} / ${data.totalTracks}`;                <div class="shortcut-item">
-
-                                    <kbd>P</kbd>
-
-                // Update volume                    <span>Play/Pause</span>
-
-                document.getElementById('volumeValue').textContent = `${data.volume}%`;                </div>
-
-                document.getElementById('volumeSlider').value = data.volume;                <div class="shortcut-item">
-
-                                    <kbd>N</kbd>
-
-                // Update play status                    <span>Next Track</span>
-
-                const playStatus = document.getElementById('playStatus');                </div>
-
-                const playIcon = document.getElementById('playIcon');                <div class="shortcut-item">
-
-                const playText = document.getElementById('playText');                    <kbd>B</kbd>
-
-                                    <span>Previous Track</span>
-
-                if (data.playing) {                </div>
-
-                    playStatus.innerHTML = '▶️ Playing';                <div class="shortcut-item">
-
-                    playStatus.classList.add('playing');                    <kbd>M</kbd>
-
-                    playIcon.textContent = '⏸️';                    <span>Toggle Mode</span>
-
-                    playText.textContent = 'Pause';                </div>
-
-                } else {                <div class="shortcut-item">
-
-                    playStatus.innerHTML = '⏸️ Paused';                    <kbd>ESC</kbd>
-
-                    playStatus.classList.remove('playing');                    <span>Emergency Stop/Reset</span>
-
-                    playIcon.textContent = '▶️';                </div>
-
-                    playText.textContent = 'Play';                <div class="shortcut-item">
-
-                }                    <kbd>R</kbd>
-
-                                    <span>Reset Emergency</span>
-
-                // Update media type                </div>
-
-                document.getElementById('mediaType').textContent = data.isVideo ? '🎥 Video' : '🎵 Audio';                <div class="shortcut-item">
-
-                                    <kbd>Q</kbd>
-
-                // Update mode                    <span>Quit Application</span>
-
-                if (data.mode !== currentMode) {                </div>
-
-                    currentMode = data.mode;            </div>
-
-                    updateModeUI(data.mode);        </div>
-
+                // Update control mode if changed
+                if (statusData.mode !== currentControlMode) {
+                    currentControlMode = statusData.mode;
+                    updateControlModeUI(statusData.mode);
                 }
-
-                        <!-- Footer -->
-
-                // Update emergency status        <footer>
-
-                updateEmergencyStatus(data.emergency);            <p>🎵 Wave2Play - Hand Gesture Media Controller 🎥</p>
-
-                            <p class="footer-note">Make sure your camera is enabled and properly positioned</p>
-
-            } catch (error) {        </footer>
-
-                console.error('Error fetching status:', error);    </div>
-
-            }
-
-        }    <script>
-
-        let currentMode = 'standard';
-
-        async function control(action) {        let isEmergency = false;
-
-            try {
-
-                await fetch(`/api/control/${action}`, { method: 'POST' });        // Update status every second
-
-                updateStatus();        setInterval(updateStatus, 1000);
-
+                
+                // Update emergency status
+                updateEmergencyUI(statusData.emergency);
+                
             } catch (error) {
-
-                console.error('Error controlling player:', error);        async function updateStatus() {
-
-            }            try {
-
-        }                const response = await fetch('/api/status');
-
-                const data = await response.json();
-
-        async function setVolume(volume) {                
-
-            try {                // Update track info
-
-                await fetch('/api/control/volume', {                document.getElementById('trackName').textContent = data.track || 'No track loaded';
-
-                    method: 'POST',                document.getElementById('trackNumber').textContent = `${data.currentTrack} / ${data.totalTracks}`;
-
-                    headers: { 'Content-Type': 'application/json' },                
-
-                    body: JSON.stringify({ volume: parseInt(volume) })                // Update volume
-
-                });                document.getElementById('volumeValue').textContent = `${data.volume}%`;
-
-                document.getElementById('volumeValue').textContent = `${volume}%`;                document.getElementById('volumeSlider').value = data.volume;
-
-            } catch (error) {                
-
-                console.error('Error setting volume:', error);                // Update play status
-
-            }                const playStatus = document.getElementById('playStatus');
-
-        }                const playIcon = document.getElementById('playIcon');
-
-                const playText = document.getElementById('playText');
-
-        async function switchMode(mode) {                
-
-            if (mode !== currentMode) {                if (data.playing) {
-
-                await control('mode');                    playStatus.innerHTML = '▶️ Playing';
-
-                updateModeUI(mode);                    playStatus.classList.add('playing');
-
-            }                    playIcon.textContent = '⏸️';
-
-        }                    playText.textContent = 'Pause';
-
-                } else {
-
-        function updateModeUI(mode) {                    playStatus.innerHTML = '⏸️ Paused';
-
-            currentMode = mode;                    playStatus.classList.remove('playing');
-
-                                playIcon.textContent = '▶️';
-
-            // Update mode buttons                    playText.textContent = 'Play';
-
-            const standardBtn = document.getElementById('standardModeBtn');                }
-
-            const accessibilityBtn = document.getElementById('accessibilityModeBtn');                
-
-                            // Update media type
-
-            if (mode === 'standard') {                document.getElementById('mediaType').textContent = data.isVideo ? '🎥 Video' : '🎵 Audio';
-
-                standardBtn.classList.add('active');                
-
-                accessibilityBtn.classList.remove('active');                // Update mode
-
-                document.getElementById('standardGestures').classList.add('active');                if (data.mode !== currentMode) {
-
-                document.getElementById('accessibilityGestures').classList.remove('active');                    currentMode = data.mode;
-
-            } else {                    updateModeUI(data.mode);
-
-                standardBtn.classList.remove('active');                }
-
-                accessibilityBtn.classList.add('active');                
-
-                document.getElementById('standardGestures').classList.remove('active');                // Update emergency status
-
-                document.getElementById('accessibilityGestures').classList.add('active');                updateEmergencyStatus(data.emergency);
-
-            }                
-
-        }            } catch (error) {
-
-                console.error('Error fetching status:', error);
-
-        async function triggerEmergency() {            }
-
-            await control('emergency');        }
-
-            updateStatus();
-
-        }        async function control(action) {
-
-            try {
-
-        function updateEmergencyStatus(emergency) {                await fetch(`/api/control/${action}`, { method: 'POST' });
-
-            const emergencyBtn = document.getElementById('emergencyBtn');                updateStatus();
-
-            const emergencyStatus = document.getElementById('emergencyStatus');            } catch (error) {
-
-                            console.error('Error controlling player:', error);
-
-            if (emergency) {            }
-
-                emergencyBtn.classList.add('active');        }
-
-                emergencyStatus.textContent = '⚠️ EMERGENCY ACTIVE - Click to Reset';
-
-                emergencyStatus.style.display = 'block';        async function setVolume(volume) {
-
-                isEmergency = true;            try {
-
-            } else {                await fetch('/api/control/volume', {
-
-                emergencyBtn.classList.remove('active');                    method: 'POST',
-
-                emergencyStatus.textContent = '';                    headers: { 'Content-Type': 'application/json' },
-
-                emergencyStatus.style.display = 'none';                    body: JSON.stringify({ volume: parseInt(volume) })
-
-                isEmergency = false;                });
-
-            }                document.getElementById('volumeValue').textContent = `${volume}%`;
-
-        }            } catch (error) {
-
-                console.error('Error setting volume:', error);
-
-        // Initial status update            }
-
-        updateStatus();        }
-
-    </script>
-
-</body>        async function switchMode(mode) {
-
-</html>            if (mode !== currentMode) {
-
-                await control('mode');
-                updateModeUI(mode);
+                console.error('Failed to fetch player status:', error);
+                document.getElementById('currentTrackName').textContent = 'Connection Error';
             }
         }
 
-        function updateModeUI(mode) {
-            currentMode = mode;
+        /**
+         * Update play/pause button UI
+         */
+        function updatePlayPauseUI(isPlaying) {
+            const statusElement = document.getElementById('playerStatus');
+            const iconElement = document.getElementById('playPauseIcon');
+            const textElement = document.getElementById('playPauseText');
             
-            // Update mode buttons
-            const standardBtn = document.getElementById('standardModeBtn');
-            const accessibilityBtn = document.getElementById('accessibilityModeBtn');
+            if (isPlaying) {
+                statusElement.textContent = '▶️ Playing';
+                statusElement.classList.add('status-playing');
+                iconElement.textContent = '⏸️';
+                textElement.textContent = 'Pause';
+            } else {
+                statusElement.textContent = '⏸️ Paused';
+                statusElement.classList.remove('status-playing');
+                iconElement.textContent = '▶️';
+                textElement.textContent = 'Play';
+            }
+        }
+
+        /**
+         * Send control command to player
+         */
+        async function controlPlayer(action) {
+            try {
+                await fetch(`/api/control/${action}`, { method: 'POST' });
+                setTimeout(updatePlayerStatus, 100); // Update status after 100ms
+            } catch (error) {
+                console.error(`Failed to execute control action: ${action}`, error);
+            }
+        }
+
+        /**
+         * Set volume level
+         */
+        async function setVolume(volumeLevel) {
+            try {
+                await fetch('/api/control/volume', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ volume: parseInt(volumeLevel) })
+                });
+                document.getElementById('volumeDisplay').textContent = `${volumeLevel}%`;
+            } catch (error) {
+                console.error('Failed to set volume:', error);
+            }
+        }
+
+        /**
+         * Switch between Standard and Accessibility modes
+         */
+        async function switchControlMode(mode) {
+            if (mode !== currentControlMode) {
+                await controlPlayer('mode');
+                updateControlModeUI(mode);
+            }
+        }
+
+        /**
+         * Update control mode UI
+         */
+        function updateControlModeUI(mode) {
+            currentControlMode = mode;
+            
+            const btnStandard = document.getElementById('btnStandardMode');
+            const btnAccessibility = document.getElementById('btnAccessibilityMode');
+            const gesturesStandard = document.getElementById('gesturesStandardMode');
+            const gesturesAccessibility = document.getElementById('gesturesAccessibilityMode');
             
             if (mode === 'standard') {
-                standardBtn.classList.add('active');
-                accessibilityBtn.classList.remove('active');
-                document.getElementById('standardGestures').classList.add('active');
-                document.getElementById('accessibilityGestures').classList.remove('active');
+                btnStandard.classList.add('mode-btn-active');
+                btnAccessibility.classList.remove('mode-btn-active');
+                gesturesStandard.classList.add('gestures-active');
+                gesturesAccessibility.classList.remove('gestures-active');
             } else {
-                standardBtn.classList.remove('active');
-                accessibilityBtn.classList.add('active');
-                document.getElementById('standardGestures').classList.remove('active');
-                document.getElementById('accessibilityGestures').classList.add('active');
+                btnStandard.classList.remove('mode-btn-active');
+                btnAccessibility.classList.add('mode-btn-active');
+                gesturesStandard.classList.remove('gestures-active');
+                gesturesAccessibility.classList.add('gestures-active');
             }
         }
 
-        async function triggerEmergency() {
-            await control('emergency');
-            updateStatus();
+        /**
+         * Trigger emergency stop
+         */
+        async function triggerEmergencyStop() {
+            await controlPlayer('emergency');
+            setTimeout(updatePlayerStatus, 100);
         }
 
-        function updateEmergencyStatus(emergency) {
-            const emergencyBtn = document.getElementById('emergencyBtn');
-            const emergencyStatus = document.getElementById('emergencyStatus');
+        /**
+         * Update emergency UI status
+         */
+        function updateEmergencyUI(isEmergency) {
+            const btnEmergency = document.getElementById('btnEmergencyStop');
+            const statusMessage = document.getElementById('emergencyStatusMessage');
             
-            if (emergency) {
-                emergencyBtn.classList.add('active');
-                emergencyStatus.textContent = '⚠️ EMERGENCY ACTIVE - Click to Reset';
-                emergencyStatus.style.display = 'block';
-                isEmergency = true;
+            if (isEmergency) {
+                btnEmergency.classList.add('emergency-btn-active');
+                statusMessage.textContent = '⚠️ EMERGENCY MODE ACTIVE - Click button or press ESC/R to reset';
+                statusMessage.classList.add('emergency-message-active');
+                isEmergencyActive = true;
             } else {
-                emergencyBtn.classList.remove('active');
-                emergencyStatus.textContent = '';
-                emergencyStatus.style.display = 'none';
-                isEmergency = false;
+                btnEmergency.classList.remove('emergency-btn-active');
+                statusMessage.textContent = '';
+                statusMessage.classList.remove('emergency-message-active');
+                isEmergencyActive = false;
             }
         }
-
-        // Initial status update
-        updateStatus();
     </script>
 </body>
 </html>
